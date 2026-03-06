@@ -9,6 +9,20 @@
 
 # Add any project specific keep options here:
 
+# 应用入口与四大组件
+-keep class com.lining.gradlebuild.** { *; }
+-keep class com.test.** { *; }
+
+# 保留 Serializable 序列化
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:
