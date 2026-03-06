@@ -48,6 +48,36 @@
                 "panel": "shared"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Android: Install Debug",
+            "type": "shell",
+            "command": ".\\gradlew.bat",
+            "args": ["installDebug", "--no-daemon"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "none",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Android: Build & Run (模拟器)",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\scripts\\build_install_run.ps1"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "none",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
         }
     ]
 }

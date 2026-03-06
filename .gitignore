@@ -12,12 +12,18 @@ build/
 local.properties
 *.local
 
+# IDE - Cursor / VS Code（本机生成的构建任务与推荐扩展，不提交）
+.vscode/
+
 # IDE - IntelliJ / Android Studio
 .idea/
 *.iml
 *.ipr
 *.iws
 out/
+
+# 本机脚本与工具（编译/模拟器/安装脚本，不提交）
+scripts/
 
 # Android Studio Navigation editor
 .navigation/
