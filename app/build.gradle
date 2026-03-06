@@ -1,6 +1,7 @@
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
+
 buildscript {
     repositories {
         mavenCentral()
@@ -12,72 +13,74 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.0"
+    namespace 'com.lining.gradlebuild'
+    compileSdk 35
+    buildToolsVersion "35.0.0"
     defaultConfig {
         applicationId "gradlebuild.lining.com.gradlebuild"
-        minSdkVersion 19
-        targetSdkVersion 26
+        minSdk 19
+        targetSdk 35
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.6.1', {
+        exclude group: 'androidx.annotation', module: 'annotation'
     })
-    compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
-    testCompile 'junit:junit:4.12'
-    compile project(':aspectlib')
-    compile project(':recorduplod')
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    testImplementation 'junit:junit:4.13.2'
+    implementation project(':aspectlib')
+    implementation project(':recorduplod')
 }
-final def log = project.logger
-final def variants = project.android.applicationVariants
 
-variants.all { variant ->
+final def log = project.logger
+android.applicationVariants.all { variant ->
     if (!variant.buildType.isDebuggable()) {
         log.debug("Skipping non-debuggable build type '${variant.buildType.name}'.")
-        return;
+        return
     }
-
-    JavaCompile javaCompile = variant.javaCompile
+    def javaCompile = variant.javaCompileProvider.get()
     javaCompile.doLast {
         String[] args = ["-showWeaveInfo",
-                         "-1.5",
-                         "-inpath", javaCompile.destinationDir.toString(),
+                         "-1.8",
+                         "-inpath", javaCompile.destinationDirectory.get().asFile.toString(),
                          "-aspectpath", javaCompile.classpath.asPath,
-                         "-d", javaCompile.destinationDir.toString(),
+                         "-d", javaCompile.destinationDirectory.get().asFile.toString(),
                          "-classpath", javaCompile.classpath.asPath,
                          "-bootclasspath", project.android.bootClasspath.join(File.pathSeparator)]
         log.debug "ajc args: " + Arrays.toString(args)
-
-        MessageHandler handler = new MessageHandler(true);
-        new Main().run(args, handler);
+        MessageHandler handler = new MessageHandler(true)
+        new Main().run(args, handler)
         for (IMessage message : handler.getMessages(null, true)) {
             switch (message.getKind()) {
                 case IMessage.ABORT:
                 case IMessage.ERROR:
                 case IMessage.FAIL:
                     log.error message.message, message.thrown
-                    break;
+                    break
                 case IMessage.WARNING:
                     log.warn message.message, message.thrown
-                    break;
+                    break
                 case IMessage.INFO:
                     log.info message.message, message.thrown
-                    break;
+                    break
                 case IMessage.DEBUG:
                     log.debug message.message, message.thrown
-                    break;
+                    break
             }
         }
     }

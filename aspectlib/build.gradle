@@ -4,65 +4,64 @@ import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 
 apply plugin: 'com.android.library'
+
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
         classpath 'org.aspectj:aspectjtools:1.8.9'
         classpath 'org.aspectj:aspectjweaver:1.8.9'
     }
 }
 
-
 repositories {
     mavenCentral()
 }
-dependencies {
-    compile 'org.aspectj:aspectjrt:1.8.9'
-}
-android {
-    compileSdkVersion 22
-    buildToolsVersion '23.0.1'
 
-    lintOptions {
+dependencies {
+    implementation 'org.aspectj:aspectjrt:1.8.9'
+}
+
+android {
+    namespace 'gradlebuild.lining.com.aspectlib'
+    compileSdk 35
+    buildToolsVersion "35.0.0"
+
+    lint {
         abortOnError false
     }
-
 }
 
 android.libraryVariants.all { variant ->
     LibraryPlugin plugin = project.plugins.getPlugin(LibraryPlugin)
-    JavaCompile javaCompile = variant.javaCompile
+    def javaCompile = variant.javaCompileProvider.get()
     javaCompile.doLast {
         String[] args = ["-showWeaveInfo",
-                         "-1.5",
-                         "-inpath", javaCompile.destinationDir.toString(),
+                         "-1.8",
+                         "-inpath", javaCompile.destinationDirectory.get().asFile.toString(),
                          "-aspectpath", javaCompile.classpath.asPath,
-                         "-d", javaCompile.destinationDir.toString(),
+                         "-d", javaCompile.destinationDirectory.get().asFile.toString(),
                          "-classpath", javaCompile.classpath.asPath,
-                         "-bootclasspath", plugin.project.android.bootClasspath.join(
-                File.pathSeparator)]
-
-        MessageHandler handler = new MessageHandler(true);
-        new Main().run(args, handler)
-
+                         "-bootclasspath", plugin.project.android.bootClasspath.join(File.pathSeparator)]
         def log = project.logger
+        log.debug "ajc args: " + Arrays.toString(args)
+        MessageHandler handler = new MessageHandler(true)
+        new Main().run(args, handler)
         for (IMessage message : handler.getMessages(null, true)) {
             switch (message.getKind()) {
                 case IMessage.ABORT:
                 case IMessage.ERROR:
                 case IMessage.FAIL:
                     log.error message.message, message.thrown
-                    break;
+                    break
                 case IMessage.WARNING:
                 case IMessage.INFO:
                     log.info message.message, message.thrown
-                    break;
+                    break
                 case IMessage.DEBUG:
                     log.debug message.message, message.thrown
-                    break;
+                    break
             }
         }
     }
