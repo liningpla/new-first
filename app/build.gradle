@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.aspectj:aspectjtools:1.8.9'
+        classpath 'org.aspectj:aspectjtools:1.9.21'
     }
 }
 apply plugin: 'com.android.application'
@@ -18,7 +18,7 @@ android {
     buildToolsVersion "35.0.0"
     defaultConfig {
         applicationId "gradlebuild.lining.com.gradlebuild"
-        minSdk 19
+        minSdk 21
         targetSdk 35
         versionCode 1
         versionName "1.0"
@@ -61,6 +61,9 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'org.aspectj:aspectjrt:1.9.21'
+    androidTestImplementation 'androidx.test:core:1.5.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation('androidx.test.espresso:espresso-core:3.6.1', {
         exclude group: 'androidx.annotation', module: 'annotation'
     })
